@@ -1,0 +1,430 @@
+openapi: 3.0.1
+info:
+  title: Procesos Auditorías API
+  version: 1.0.0
+  description: OpenAPI 3.0 documentation auto-generated from project structure.
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+                  uptime:
+                    type: number
+
+# Generic CRUD for resources
+  /api/{resource}:
+    get:
+      summary: List resources
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Generic'
+    post:
+      summary: Create or update resource
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Generic'
+      responses:
+        '200':
+          description: Created or updated resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic'
+
+  /api/{resource}/{id}:
+    get:
+      summary: Get resource by id
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Resource object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic'
+    delete:
+      summary: Deactivate resource by id
+      parameters:
+        - name: resource
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deactivated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/auth/login:
+    post:
+      summary: Login and receive JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLogin'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      email:
+                        type: string
+
+components:
+  schemas:
+    Generic:
+      type: object
+      description: Generic resource schema. Use specific schemas in components when available.
+      properties:
+        id:
+          type: integer
+        estado:
+          type: string
+        fecha_creacion:
+          type: string
+          format: date-time
+        usuario_creacion:
+          type: string
+        fecha_modificacion:
+          type: string
+          format: date-time
+        usuario_modificacion:
+          type: string
+
+    Pregunta:
+      type: object
+      properties:
+        codigo_pregunta:
+          type: integer
+        descripcion_pregunta:
+          type: string
+        estado:
+          type: string
+        fecha_creacion:
+          type: string
+          format: date-time
+        usuario_creacion:
+          type: string
+        fecha_modificacion:
+          type: string
+          format: date-time
+        usuario_modificacion:
+          type: string
+
+    Propiedad:
+      type: object
+      properties:
+        codigo_propiedad:
+          type: integer
+        codigo_pregunta:
+          type: integer
+        codigo_tipo_propiedad:
+          type: integer
+        estado:
+          type: string
+        fecha_creacion:
+          type: string
+          format: date-time
+        usuario_creacion:
+          type: string
+        fecha_modificacion:
+          type: string
+          format: date-time
+        usuario_modificacion:
+          type: string
+
+    Puesto_trabajo:
+      type: object
+      properties:
+        codigo_puesto_trabajo:
+          type: integer
+        nombre_puesto_trabajo:
+          type: string
+        estado:
+          type: string
+        fecha_creacion:
+          type: string
+          format: date-time
+        usuario_creacion:
+          type: string
+        codigo_area_tipo_auditoria:
+          type: integer
+        fecha_modificacion:
+          type: string
+          format: date-time
+        usuario_modificacion:
+          type: string
+
+    Puesto_trabajo_pregunta:
+      type: object
+      properties:
+        codigo_puesto_trabajo_pregunta:
+          type: integer
+        codigo_modelo:
+          type: integer
+        codigo_puesto_trabajo:
+          type: integer
+        codigo_pregunta:
+          type: integer
+        estado:
+          type: string
+        fecha_modificacion:
+          type: string
+          format: date-time
+        usuario_modificacion:
+          type: string
+
+    Respuestas:
+      type: object
+      properties:
+        codigo_respuesta:
+          type: integer
+        codigo_evaluacion:
+          type: integer
+        codigo_puesto_trabajo_pregunta:
+          type: integer
+        respuesta:
+          type: string
+        respuesta_url:
+          type: string
+        fecha_evaluacion:
+          type: string
+          format: date-time
+        tiempo_evaluacion:
+          type: string
+        estado:
+          type: string
+        fecha_creacion:
+          type: string
+          format: date-time
+        usuario_creacion:
+          type: string
+
+    Tipo_accion:
+      type: object
+      properties:
+        codigo_tipo_accion:
+          type: integer
+        nombre_tipo_accion:
+          type: string
+        estado:
+          type: string
+
+    Tipo_auditoria:
+      type: object
+      properties:
+        codigo_tipo_auditoria:
+          type: integer
+        nombre_tipo_auditoria:
+          type: string
+        estado:
+          type: string
+
+    Tipo_propiedad:
+      type: object
+      properties:
+        codigo_tipo_propiedad:
+          type: integer
+        nombre_propiedad:
+          type: string
+        estado:
+          type: string
+
+    Plan_accion:
+      type: object
+      properties:
+        codigo_plan_accion:
+          type: integer
+        codigo_evaluacion:
+          type: integer
+        codigo_tipo_accion:
+          type: integer
+        codigo_estado:
+          type: integer
+        descripcion_plan_accion:
+          type: string
+        fecha_inicio:
+          type: string
+          format: date-time
+        fecha_objetivo:
+          type: string
+          format: date-time
+        fecha_extension:
+          type: string
+          format: date-time
+        responsable_plan_accion:
+          type: string
+        url_evidencia:
+          type: string
+        estado:
+          type: string
+
+    Modelo:
+      type: object
+      properties:
+        codigo_modelo:
+          type: integer
+        nombre_modelo:
+          type: string
+        estado:
+          type: string
+
+    Evaluador:
+      type: object
+      properties:
+        codigo_evaluador:
+          type: integer
+        evaluador:
+          type: string
+        estado:
+          type: string
+
+    Evaluacion:
+      type: object
+      properties:
+        codigo_evaluacion:
+          type: integer
+        serie_evaluacion:
+          type: string
+        estado:
+          type: string
+
+    Estado:
+      type: object
+      properties:
+        codigo_estado:
+          type: integer
+        nombre_estado:
+          type: string
+        estado:
+          type: string
+
+    Area_tipo_auditoria:
+      type: object
+      properties:
+        codigo_area_tipo_auditoria:
+          type: integer
+        nombre_area:
+          type: string
+        codigo_tipo_auditoria:
+          type: integer
+        estado:
+          type: string
+
+    Agenda_evaluacion:
+      type: object
+      properties:
+        codigo_agenda_evaluacion:
+          type: integer
+        codigo_puesto_trabajo:
+          type: integer
+        codigo_evaluador:
+          type: integer
+        codigo_estado:
+          type: integer
+        fecha_inicio:
+          type: string
+          format: date-time
+        fecha_fin:
+          type: string
+          format: date-time
+        fecha_extension:
+          type: string
+          format: date-time
+        estado:
+          type: string
+
+    AuthLogin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

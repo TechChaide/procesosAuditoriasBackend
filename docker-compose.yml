@@ -1,0 +1,28 @@
+services:
+  procesos-auditorias-service:
+    build: . # <-- AÑADE ESTA LÍNEA
+    image: techchaide/procesos-auditorias-backend:1.0
+    container_name: procesos_auditorias_service
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      - TZ=America/Guayaquil
+    networks:
+      - traefik-net
+    volumes:
+      - /usr/share/zoneinfo/America/Guayaquil:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    labels:
+      # ... tus labels de Traefik se mantienen igual ...
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-net"
+      - "traefik.http.routers.procesos-auditorias-prod.rule=Host(`apps.chaide.com`) && PathPrefix(`/PAback`)"
+      - "traefik.http.routers.procesos-auditorias-prod.entrypoints=websecure"
+      - "traefik.http.routers.procesos-auditorias-prod.tls=true"
+      - "traefik.http.middlewares.prod-procesos-auditorias-strip.stripprefix.prefixes=/PAback"
+      - "traefik.http.routers.procesos-auditorias-prod.middlewares=prod-procesos-auditorias-strip@docker"
+      - "traefik.http.services.procesos-auditorias-prod.loadbalancer.server.port=5400"
+networks:
+  traefik-net:
+    external: true

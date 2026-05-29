@@ -15,6 +15,7 @@ router.post('/enviarReporteEvaluacion', serviciosController.enviarReporteEvaluac
 
 //Endpoints para el dashboard
 router.post('/EvaluacionesPorAreaY', serviciosController.getEvaluacionesPorArea);
+router.post('/EvaluacionesPorAreaYM', serviciosController.getEvaluacionesPorAreaAnioMes);
 router.post('/NotasPTP', serviciosController.getNotasEvaluacionPorCodigoPTP);
 router.post('/TipoAuditoriaPTP', serviciosController.getTipoAuditoriaPorCodigoPTP);
 

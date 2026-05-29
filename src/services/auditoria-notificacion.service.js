@@ -57,6 +57,20 @@ function calcularDiasRestantes(fechaVencimiento) {
   return dias;
 }
 
+function normalizarEstado(valor) {
+  if (!valor) return '';
+  return String(valor)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+function estadoPermiteNotificacion(nombreEstado) {
+  const estado = normalizarEstado(nombreEstado);
+  return estado === 'agendado' || estado === 'en proceso de evaluacion';
+}
+
 /**
  * Genera el HTML del correo de notificación
  */
@@ -154,10 +168,16 @@ async function enviarNotificacionesAuditorias(diasAntes = null) {
 
     let notificacionesEnviadas = 0;
     let errores = 0;
+    let omitidasPorEstado = 0;
 
     // Procesar cada evaluación
     for (const evaluacion of evaluaciones) {
       try {
+        if (!estadoPermiteNotificacion(evaluacion.nombre_estado)) {
+          omitidasPorEstado++;
+          continue;
+        }
+
         // Usar dias_para_vencer del SP directamente
         const dias = evaluacion.dias_para_vencer || calcularDiasRestantes(evaluacion.fecha_fin);
         
@@ -200,6 +220,7 @@ async function enviarNotificacionesAuditorias(diasAntes = null) {
     const resultado = {
       success: notificacionesEnviadas > 0,
       notificacionesEnviadas,
+      omitidasPorEstado,
       errores,
       timestamp: new Date().toISOString()
     };

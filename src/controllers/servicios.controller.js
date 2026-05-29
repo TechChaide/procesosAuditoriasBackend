@@ -123,6 +123,39 @@ module.exports = {
   },
 
 
+    getEvaluacionesPorAreaAnioMes: async (req, res) => {
+    const { CodigoArea, year, mes} = req.body;
+    try {
+
+      if (!CodigoArea || !year) {
+        return res.status(400).json({
+          msg: "Faltan campos requeridos: CodigoArea, year",
+        });
+      }
+
+      const resultado = await db.sequelize.query(
+        `EXEC [${process.env.DB_NAME}].[dbo].[sp_Get_EvaluacionesAreaYM] :CodigoArea, :Year, :Mes `,
+        {
+          type: QueryTypes.SELECT,
+            replacements: { CodigoArea : CodigoArea, Year: year, Mes: mes },
+        }
+      );
+
+      // Para acceder al valor: resultado.total
+      res.status(200).json({
+        data: resultado,
+        length: resultado.length,
+      });
+    } catch (error) {
+      console.error("Error al obtener el total de registros:", error);
+      res.status(500).json({
+        msg: "Error en el servidor al obtener el total de registros.",
+      });
+    }
+  },
+
+
+
 
   getNotasEvaluacionPorCodigoPTP: async (req, res) => {
     const { CODIGOPTP } = req.body;
@@ -252,11 +285,23 @@ module.exports = {
       const respuestas = await Respuestas.findAll({
         where: {
           codigo_evaluacion: codigo_evaluacion,
+          codigo_puesto_trabajo_pregunta: puesto_trabajo,
           estado: 'A', // Solo registros activos
           codigo_tipo_propiedad: 3 // Solo preguntas de tipo respuesta abierta
         },
         include: [
-          { model: Pregunta, as: 'pregunta' },
+          {
+            model: Pregunta,
+            as: 'pregunta',
+            where: { estado: 'A' },
+            required: true
+          },
+          {
+            model: Puesto_trabajo_pregunta,
+            as: 'puesto_trabajo_pregunta',
+            where: { estado: 'A' },
+            required: true
+          },
           { model: Evaluacion, as: 'evaluacion' }
         ]
       });
@@ -286,6 +331,7 @@ module.exports = {
           msg: "El correo destino no es válido.",
         });
       }
+
 
       // Enviar el reporte por correo
       await enviarReporteEvaluacion(correo_destino, area, puesto_trabajo, respuestas, calificacionPromedio);
